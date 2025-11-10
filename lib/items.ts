@@ -1,11 +1,22 @@
 export interface Item {
-  name?: string
+  name?: string | Record<string, string>
   priority?: number
   image?: string
-  category?: string
-  rarity?: string
-  description?: string
+  category?: string | Record<string, string>
+  rarity?: string | Record<string, string>
+  description?: string | Record<string, string>
   [key: string]: unknown
+}
+
+// Helper function to extract English text from multilingual fields
+export function getLocalizedText(field: string | Record<string, string> | undefined): string {
+  if (!field) return ""
+  if (typeof field === "string") return field
+  if (typeof field === "object" && field !== null) {
+    // Try English first, then fall back to first available language
+    return field.en || field.de || field.fr || field.es || Object.values(field)[0] || ""
+  }
+  return ""
 }
 
 export function sortItems(a: Item, b: Item): number {
@@ -18,7 +29,7 @@ export function sortItems(a: Item, b: Item): number {
   }
 
   // Fall back to name alphabetical
-  const aName = a.name?.toString() || ""
-  const bName = b.name?.toString() || ""
+  const aName = getLocalizedText(a.name)
+  const bName = getLocalizedText(b.name)
   return aName.localeCompare(bName)
 }

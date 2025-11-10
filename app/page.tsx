@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ItemCard } from "@/components/ItemCard"
-import { sortItems, type Item } from "@/lib/items"
+import { sortItems, getLocalizedText, type Item } from "@/lib/items"
 import itemsData from "@/data/items.json"
 
 export default function Home() {
@@ -13,7 +13,8 @@ export default function Home() {
   const filteredAndSorted = items
     .filter((item) => {
       if (!query) return true
-      return item.name?.toString().toLowerCase().includes(query.toLowerCase())
+      const name = getLocalizedText(item.name)
+      return name.toLowerCase().includes(query.toLowerCase())
     })
     .sort(sortItems)
 

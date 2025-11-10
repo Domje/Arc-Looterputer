@@ -1,4 +1,4 @@
-import type { Item } from "@/lib/items"
+import { getLocalizedText, type Item } from "@/lib/items"
 
 interface ItemCardProps {
   item: Item
@@ -7,6 +7,11 @@ interface ItemCardProps {
 export function ItemCard({ item }: ItemCardProps) {
   const imageSrc = item.image ? (item.image.startsWith("/") ? item.image : `/images/items/${item.image}`) : null
 
+  const name = getLocalizedText(item.name)
+  const category = getLocalizedText(item.category)
+  const rarity = getLocalizedText(item.rarity)
+  const description = getLocalizedText(item.description)
+
   return (
     <div className="bg-[#eae1d1]/5 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
       {/* Image */}
@@ -14,7 +19,7 @@ export function ItemCard({ item }: ItemCardProps) {
         <div className="aspect-square bg-[#120817]/50 flex items-center justify-center p-4">
           <img
             src={imageSrc || "/placeholder.svg"}
-            alt={item.name || "Item"}
+            alt={name || "Item"}
             className="max-w-full max-h-full object-contain"
           />
         </div>
@@ -26,13 +31,13 @@ export function ItemCard({ item }: ItemCardProps) {
 
       {/* Content */}
       <div className="p-4 space-y-2">
-        <h3 className="font-extrabold text-lg leading-tight">{item.name || "Unknown Item"}</h3>
+        <h3 className="font-extrabold text-lg leading-tight">{name || "Unknown Item"}</h3>
 
-        {item.category && <p className="text-sm text-[#eae1d1]/70">Category: {item.category}</p>}
+        {category && <p className="text-sm text-[#eae1d1]/70">Category: {category}</p>}
 
-        {item.rarity && <p className="text-sm text-[#eae1d1]/70">Rarity: {item.rarity}</p>}
+        {rarity && <p className="text-sm text-[#eae1d1]/70">Rarity: {rarity}</p>}
 
-        {item.description && <p className="text-sm text-[#eae1d1]/60 line-clamp-3">{item.description}</p>}
+        {description && <p className="text-sm text-[#eae1d1]/60 line-clamp-3">{description}</p>}
       </div>
     </div>
   )
