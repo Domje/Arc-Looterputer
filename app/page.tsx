@@ -1,33 +1,75 @@
 "use client"
 
 import { useState } from "react"
+import { Navigation } from "@/components/Navigation"
 import { ItemCard } from "@/components/ItemCard"
-import { sortItems, getLocalizedText, type Item } from "@/lib/items"
+import { ItemModal } from "@/components/ItemModal"
+import { sortItems, getLocalizedText, recyclesIntoItem, type Item } from "@/lib/items"
 import itemsData from "@/data/items.json"
 
 export default function Home() {
   const [query, setQuery] = useState("")
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
 
   const items: Item[] = Array.isArray(itemsData) ? itemsData : []
 
   const filteredAndSorted = items
     .filter((item) => {
       if (!query) return true
+
+      const queryLower = query.toLowerCase()
       const name = getLocalizedText(item.name)
-      return name.toLowerCase().includes(query.toLowerCase())
+      const rarity = getLocalizedText(item.rarity)
+
+      // Check for special search keywords
+      if (queryLower === "recycleable" || queryLower === "recyclable" || queryLower === "recycle") {
+        return item.recyclesInto && Object.keys(item.recyclesInto).length > 0
+      }
+      if (queryLower === "craftable" || queryLower === "craft") {
+        return item.recipe && Object.keys(item.recipe).length > 0
+      }
+      if (queryLower === "upgradable" || queryLower === "upgradeable" || queryLower === "upgrade") {
+        return item.upgradeCost && Object.keys(item.upgradeCost).length > 0
+      }
+
+      // Check if item name matches OR rarity matches OR if item recycles into the search query
+      return (
+        name.toLowerCase().includes(queryLower) ||
+        rarity.toLowerCase().includes(queryLower) ||
+        recyclesIntoItem(item, query, items)
+      )
     })
-    .sort(sortItems)
+    .sort((a, b) => {
+      if (!query) return sortItems(a, b)
+
+      const nameA = getLocalizedText(a.name).toLowerCase()
+      const nameB = getLocalizedText(b.name).toLowerCase()
+      const queryLower = query.toLowerCase()
+
+      // Check if items are direct name matches
+      const aIsNameMatch = nameA.includes(queryLower)
+      const bIsNameMatch = nameB.includes(queryLower)
+
+      // Prioritize direct name matches first
+      if (aIsNameMatch && !bIsNameMatch) return -1
+      if (!aIsNameMatch && bIsNameMatch) return 1
+
+      // If both are name matches or both are recycle matches, use default sorting
+      return sortItems(a, b)
+    })
 
   const hasQuery = query.length > 0
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Navigation />
+
       {/* Search section */}
       <div
         className={
           hasQuery
-            ? "sticky top-0 z-50 backdrop-blur bg-[#120817]/80 border-b border-white/5 py-4"
-            : "min-h-[70vh] grid place-items-center"
+            ? "sticky top-[57px] z-40 backdrop-blur bg-[#120817]/80 border-b border-white/5 py-2"
+            : "min-h-[50vh] grid place-items-center"
         }
       >
         <div className="w-full max-w-2xl px-4 mx-auto">
@@ -62,7 +104,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredAndSorted.map((item, index) => (
-                <ItemCard key={index} item={item} />
+                <ItemCard key={index} item={item} onClick={() => setSelectedItem(item)} />
               ))}
             </div>
           )}
@@ -71,6 +113,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-[#eae1d1]/50">data from arctracker.io</footer>
+
+      {selectedItem && <ItemModal item={selectedItem} isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} />}
     </div>
   )
 }

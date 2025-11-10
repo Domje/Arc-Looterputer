@@ -5,6 +5,12 @@ export interface Item {
   category?: string | Record<string, string>
   rarity?: string | Record<string, string>
   description?: string | Record<string, string>
+  recyclesInto?: Record<string, number>
+  id?: string
+  value?: number // Added value field for sale value
+  craftBench?: string
+  recipe?: Record<string, number> // Added recipe field for crafting materials
+  upgradeCost?: Record<string, number> // Added upgradeCost field for item upgrades
   [key: string]: unknown
 }
 
@@ -32,4 +38,35 @@ export function sortItems(a: Item, b: Item): number {
   const aName = getLocalizedText(a.name)
   const bName = getLocalizedText(b.name)
   return aName.localeCompare(bName)
+}
+
+export function recyclesIntoItem(
+  item: Item,
+  targetQuery: string,
+  allItems: Item[],
+  visitedIds: Set<string> = new Set(),
+): boolean {
+  if (!item.recyclesInto) return false
+
+  // Prevent infinite loops
+  const itemId = item.id || getLocalizedText(item.name)
+  if (visitedIds.has(itemId)) return false
+  visitedIds.add(itemId)
+
+  // Check direct recycle targets
+  for (const recycleId of Object.keys(item.recyclesInto)) {
+    const recycleItem = allItems.find((i) => i.id === recycleId)
+    if (recycleItem) {
+      const recycleName = getLocalizedText(recycleItem.name)
+      if (recycleName.toLowerCase().includes(targetQuery.toLowerCase())) {
+        return true
+      }
+      // Recursively check if this recycle item recycles into the target
+      if (recyclesIntoItem(recycleItem, targetQuery, allItems, visitedIds)) {
+        return true
+      }
+    }
+  }
+
+  return false
 }

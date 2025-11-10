@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Arc Raiders Item Search",
+  title: "Looter Shooter Puter'",
   description: "Search for Arc Raiders items",
     generator: 'v0.app'
 }
