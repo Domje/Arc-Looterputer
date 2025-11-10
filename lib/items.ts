@@ -1,7 +1,7 @@
 export interface Item {
   name?: string | Record<string, string>
   priority?: number
-  image?: string
+  imageFilename?: string // Updated from 'image' to match JSON data
   category?: string | Record<string, string>
   rarity?: string | Record<string, string>
   description?: string | Record<string, string>

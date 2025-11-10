@@ -5,7 +5,7 @@ interface ItemCardProps {
 }
 
 export function ItemCard({ item }: ItemCardProps) {
-  const imageSrc = item.image ? (item.image.startsWith("/") ? item.image : `/images/items/${item.image}`) : null
+  const imageSrc = item.imageFilename || null
 
   const name = getLocalizedText(item.name)
   const category = getLocalizedText(item.category)
@@ -13,7 +13,7 @@ export function ItemCard({ item }: ItemCardProps) {
   const description = getLocalizedText(item.description)
 
   return (
-    <div className="bg-[#eae1d1]/5 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
+    <div className="bg-[#eae1d1]/5 rounded-tl-3xl rounded-br-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
       {/* Image */}
       {imageSrc ? (
         <div className="aspect-square bg-[#120817]/50 flex items-center justify-center p-4">
