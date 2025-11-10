@@ -1,30 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { ItemCard } from "@/components/ItemCard"
 import { sortItems, type Item } from "@/lib/items"
+import itemsData from "@/data/items.json"
 
 export default function Home() {
-  const [items, setItems] = useState<Item[]>([])
   const [query, setQuery] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetch("/data/items.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch items")
-        return res.json()
-      })
-      .then((data) => {
-        setItems(Array.isArray(data) ? data : [])
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message)
-        setLoading(false)
-      })
-  }, [])
+  const items: Item[] = Array.isArray(itemsData) ? itemsData : []
 
   const filteredAndSorted = items
     .filter((item) => {
@@ -63,31 +47,23 @@ export default function Home() {
       {/* Results section */}
       <div className="flex-1 px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {loading && <p className="text-center text-[#eae1d1]/60">Loading items...</p>}
+          {hasQuery && (
+            <p className="text-sm text-[#eae1d1]/60 mb-4" aria-live="polite">
+              {filteredAndSorted.length} result
+              {filteredAndSorted.length !== 1 ? "s" : ""}
+            </p>
+          )}
 
-          {error && <p className="text-center text-red-400">Error: {error}</p>}
-
-          {!loading && !error && (
-            <>
-              {hasQuery && (
-                <p className="text-sm text-[#eae1d1]/60 mb-4" aria-live="polite">
-                  {filteredAndSorted.length} result
-                  {filteredAndSorted.length !== 1 ? "s" : ""}
-                </p>
-              )}
-
-              {filteredAndSorted.length === 0 && hasQuery ? (
-                <div className="text-center py-12">
-                  <p className="text-[#eae1d1]/60">No items match your search.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredAndSorted.map((item, index) => (
-                    <ItemCard key={index} item={item} />
-                  ))}
-                </div>
-              )}
-            </>
+          {filteredAndSorted.length === 0 && hasQuery ? (
+            <div className="text-center py-12">
+              <p className="text-[#eae1d1]/60">No items match your search.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filteredAndSorted.map((item, index) => (
+                <ItemCard key={index} item={item} />
+              ))}
+            </div>
           )}
         </div>
       </div>
