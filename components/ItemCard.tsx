@@ -12,8 +12,19 @@ export function ItemCard({ item }: ItemCardProps) {
   const rarity = getLocalizedText(item.rarity)
   const description = getLocalizedText(item.description)
 
+  const getBorderColor = () => {
+    const rarityLower = rarity.toLowerCase()
+    if (rarityLower === "common") return "border-[#3ba578]"
+    if (rarityLower === "rare") return "border-[#4fa7da]"
+    if (rarityLower === "epic") return "border-[#c850a9]"
+    if (rarityLower === "legendary") return "border-[#ffae00]"
+    return "border-white/10" // Uncommon default
+  }
+
   return (
-    <div className="bg-[#eae1d1]/5 rounded-tl-3xl rounded-br-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-colors">
+    <div
+      className={`bg-[#eae1d1]/5 rounded-tl-3xl rounded-br-3xl overflow-hidden border-2 ${getBorderColor()} hover:opacity-90 transition-opacity`}
+    >
       {/* Image */}
       {imageSrc ? (
         <div className="aspect-square bg-[#120817]/50 flex items-center justify-center p-4">
